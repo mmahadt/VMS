@@ -9,6 +9,7 @@ import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -20,6 +21,37 @@ public class MainActivity extends AppCompatActivity {
 
     // Write a message to the database
     FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private boolean isValidPhone(String phone) {
+        return android.util.Patterns.PHONE.matcher(phone).matches();
+    }
+
+
+    private boolean validateEditTexts(EditText emailField, EditText phoneField)
+    {
+        boolean valid = true;
+
+        if (!isValidEmail(emailField.getText().toString())) {
+            emailField.setError("In valid email. Please type again");
+            valid=false;
+        } else {
+            emailField.setError(null);
+        }
+
+        if (!isValidPhone(phoneField.getText().toString())) {
+            phoneField.setError("In valid phone. Please type again");
+            valid=false;
+        } else {
+            phoneField.setError(null);
+        }
+
+        return valid;
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,12 +71,48 @@ public class MainActivity extends AppCompatActivity {
         String email = emailField.getText().toString();
         String phone = phoneField.getText().toString();
         String expertise = expertiseField.getText().toString();
-
         String hours = hoursField.getText().toString();
-
         int Weeklyhours = Integer.parseInt(hours);
 
-        final Volunteer volunteer = new Volunteer(name, email, phone, expertise, Weeklyhours);
+//        if (validateEditTexts(emailField,phoneField)) {
+
+        if (!isValidEmail(emailField.getText().toString())) {
+            emailField.setError("In valid email. Please type again");
+        } else {
+            emailField.setError(null);
+        }
+
+        if (!isValidPhone(phoneField.getText().toString())) {
+            phoneField.setError("In valid phone. Please type again");
+        } else {
+            phoneField.setError(null);
+        }
+
+        if( TextUtils.isEmpty(nameField.getText())){
+            nameField.setError( "First name is required!" );
+        }
+
+        if( TextUtils.isEmpty(emailField.getText())){
+            nameField.setError( "Email is required!" );
+        }
+
+        if( TextUtils.isEmpty(phoneField.getText())){
+            nameField.setError( "phone number is required!" );
+        }
+
+        if( TextUtils.isEmpty(expertiseField.getText())){
+            nameField.setError( "expertise is required!" );
+        }
+
+        if( TextUtils.isEmpty(hoursField.getText())){
+            nameField.setError( "Hours is required!" );
+        }
+
+        sendDataToFirebase(nameField, emailField, phoneField, expertiseField, hoursField, name, email, phone, expertise, Weeklyhours);
+    }
+
+    private void sendDataToFirebase(EditText nameField, EditText emailField, EditText phoneField, EditText expertiseField, EditText hoursField, String name, String email, String phone, String expertise, int weeklyhours) {
+        final Volunteer volunteer = new Volunteer(name, email, phone, expertise, weeklyhours);
 
         DatabaseReference ref = database.getReference("volunteers");
 
@@ -58,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
         expertiseField.setText(null);
         hoursField.setText(null);
 
+        Toast.makeText(getApplicationContext(), "Your data has been recorded.", Toast.LENGTH_SHORT).show();
     }
 
 }
